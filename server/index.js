@@ -18,6 +18,7 @@ app.use(express.static(`${__dirname}/../build`));
 
 app.post('/login', (req, res) => {
   const { userId } = req.body;
+  console.log(userId)
   const auth0url = `https://${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/users/${userId}`;
 
   axios.get(auth0url, { headers: { Authorization: 'Bearer ' + process.env.AUTH0_MANAGEMENT_ACCESS_TOKEN } }).then(response => {
@@ -26,13 +27,14 @@ app.post('/login', (req, res) => {
         req.session.user = users[0];
         res.json({ user: req.session.user });
       } else {
-        app.get('db').create_user([response.data.user_id, response.data.email]).then(newUser => {
-          req.session.user = newUser;
+        app.get('db').create_user([response.data.user_id, response.data.email]).then(newUsers => {
+          req.session.user = newUsers;
           res.json({ user: req.session.user });
         })
       }
     })
   }).catch(error => {
+    console.log(error)
     res.status(500).json({ message: 'oh no' })
   })
 });
